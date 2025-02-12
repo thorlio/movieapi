@@ -17,6 +17,7 @@ mongoose
   .catch((err) => console.error("Error connecting to MongoDB:", err.message));
 
 const allowedOrigins = [
+  "http://localhost:1234",
   "http://localhost:3000",
   "https://www.flixandchill-client.netlify.app",
 ];
