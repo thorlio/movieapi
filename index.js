@@ -18,7 +18,7 @@ mongoose
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://flixandchill-frontend.netlify.app",
+  "https://www.flixandchill-client.netlify.app",
 ];
 
 app.use(bodyParser.json());
