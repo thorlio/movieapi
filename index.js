@@ -52,6 +52,38 @@ app.get("/", (req, res) => {
 
 const bcrypt = require("bcrypt");
 
+app.post("/register", async (req, res) => {
+  try {
+    const { Username, Password, Email, Birthday } = req.body;
+
+    if (!Username || !Password || !Email || !Birthday) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const existingUser = await Users.findOne({ Username });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(Password, 10);
+
+    const newUser = new Users({
+      Username,
+      Password: hashedPassword,
+      Email,
+      Birthday,
+    });
+
+    await newUser.save();
+    res
+      .status(201)
+      .json({ message: "User created successfully", user: newUser });
+  } catch (err) {
+    console.error("Error creating user:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.post("/users", async (req, res) => {
   try {
     const { Username, Password, Email, Birthday } = req.body;
