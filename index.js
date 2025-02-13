@@ -214,10 +214,13 @@ app.put(
 app.get(
   "/movies",
   passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    Movies.find()
-      .then((movies) => res.status(200).json(movies))
-      .catch((err) => res.status(500).json({ error: err.message }));
+  async (req, res) => {
+    try {
+      const movies = await Movies.find(); // No field restrictions
+      res.status(200).json(movies);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 );
 
