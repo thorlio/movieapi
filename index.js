@@ -211,12 +211,36 @@ app.put(
 );
 
 //Get all movies
+// app.get(
+//   "/movies",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     try {
+//       const movies = await Movies.find();
+//       res.status(200).json(movies);
+//     } catch (err) {
+//       res.status(500).json({ error: err.message });
+//     }
+//   }
+// );
+
 app.get(
   "/movies",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      const movies = await Movies.find();
+      const movies = await Movies.find(
+        {},
+        {
+          title: 1,
+          description: 1,
+          genre: 1,
+          director: 1,
+          actors: 1,
+          dateReleased: 1,
+          imagePath: 1,
+        }
+      );
       res.status(200).json(movies);
     } catch (err) {
       res.status(500).json({ error: err.message });
