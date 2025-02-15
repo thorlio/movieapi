@@ -239,8 +239,12 @@ app.get(
           actors: 1,
           dateReleased: 1,
           imagePath: 1,
+          featured: 1,
         }
       );
+
+      console.log("movies retrieved:", movies);
+
       res.status(200).json(movies);
     } catch (err) {
       res.status(500).json({ error: err.message });
