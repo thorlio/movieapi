@@ -228,6 +228,7 @@ app.get(
   "/movies",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
+    console.log("GET /movies request received");
     try {
       const movies = await Movies.find(
         {},
