@@ -1,3 +1,5 @@
+require("dotenv").config(); // Load environment variables from .env file
+
 const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
@@ -88,32 +90,26 @@ app.post("/users", async (req, res) => {
   try {
     const { Username, Password, Email, Birthday } = req.body;
 
-    // Validate required fields
     if (!Username || !Password || !Email || !Birthday) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Check if the username already exists
     const existingUser = await Users.findOne({ Username });
     if (existingUser) {
       return res.status(400).json({ error: "Username already exists" });
     }
 
-    // Hash the password before saving
     const hashedPassword = await bcrypt.hash(Password, 10);
 
-    // Create a new user with the hashed password
     const newUser = new Users({
       Username,
-      Password: hashedPassword, // Save the hashed password
+      Password: hashedPassword,
       Email,
       Birthday,
     });
 
-    // Save the new user to the database
     await newUser.save();
 
-    // Send a success response
     res
       .status(201)
       .json({ message: "User created successfully", user: newUser });
@@ -288,7 +284,6 @@ app.delete(
   }
 );
 
-// Start the server
 app.listen(port, "0.0.0.0", () => {
   console.log("Listening on Port " + port);
 });
