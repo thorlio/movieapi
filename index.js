@@ -214,11 +214,8 @@ app.delete(
   "/users/:Username",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    console.log("🔹 Incoming DELETE request for:", req.params.Username);
-    console.log("🔹 Authenticated user:", req.user.Username);
-
     if (req.user.Username !== req.params.Username) {
-      console.error("🚨 Permission denied: User mismatch");
+      console.error("Permission denied: User mismatch");
       return res.status(403).json({ error: "Permission denied" });
     }
 
@@ -228,18 +225,56 @@ app.delete(
       });
 
       if (!deletedUser) {
-        console.error("❌ User not found in database:", req.params.Username);
+        console.error("User not found in database:", req.params.Username);
         return res.status(404).json({ error: "User not found" });
       }
 
-      console.log("✅ User deleted successfully:", deletedUser);
+      console.log("User deleted successfully:", deletedUser);
       res.status(200).json({ message: "User deleted successfully" });
     } catch (err) {
-      console.error("❌ Error deleting user:", err);
+      console.error("Error deleting user:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   }
 );
+
+app.post("/users/:Username/movies/:MovieID", async (req, res) => {
+  const { Username, MovieID } = req.params;
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { Username },
+      { $addToSet: { FavoriteMovies: MovieID } },
+      { new: true }
+    );
+
+    if (!updatedUser) return res.status(404).send("User not found");
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error adding favorite movie");
+  }
+});
+
+app.delete("/users/:Username/movies/:MovieID", async (req, res) => {
+  const { Username, MovieID } = req.params;
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { Username },
+      { $pull: { FavoriteMovies: MovieID } },
+      { new: true }
+    );
+
+    if (!updatedUser) return res.status(404).send("User not found");
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error removing favorite movie");
+  }
+});
 
 // app.put(
 //   "/users/:Username",
