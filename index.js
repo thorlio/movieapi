@@ -183,17 +183,20 @@ app.put(
     if (req.user.Username !== req.params.Username) {
       return res.status(400).send("Permission denied");
     }
-    let hashedPassword = Users.hashPassword(req.body.Password);
+
+    let updatedFields = {
+      Username: req.body.Username,
+      Email: req.body.Email,
+      Birthday: req.body.Birthday,
+    };
+
+    if (req.body.Password) {
+      updatedFields.Password = Users.hashPassword(req.body.Password);
+    }
+
     await Users.findOneAndUpdate(
       { Username: req.params.Username },
-      {
-        $set: {
-          Username: req.body.Username,
-          Password: hashedPassword,
-          Email: req.body.Email,
-          Birthday: req.body.Birthday,
-        },
-      },
+      { $set: updatedFields },
       { new: true }
     )
       .then((updatedUser) => {
@@ -205,6 +208,68 @@ app.put(
       });
   }
 );
+
+// Delete a user by Username
+app.delete(
+  "/users/:Username",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    console.log("🔹 Incoming DELETE request for:", req.params.Username);
+    console.log("🔹 Authenticated user:", req.user.Username);
+
+    if (req.user.Username !== req.params.Username) {
+      console.error("🚨 Permission denied: User mismatch");
+      return res.status(403).json({ error: "Permission denied" });
+    }
+
+    try {
+      const deletedUser = await Users.findOneAndDelete({
+        Username: req.params.Username,
+      });
+
+      if (!deletedUser) {
+        console.error("❌ User not found in database:", req.params.Username);
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      console.log("✅ User deleted successfully:", deletedUser);
+      res.status(200).json({ message: "User deleted successfully" });
+    } catch (err) {
+      console.error("❌ Error deleting user:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
+// app.put(
+//   "/users/:Username",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     if (req.user.Username !== req.params.Username) {
+//       return res.status(400).send("Permission denied");
+//     }
+//     let hashedPassword = Users.hashPassword(req.body.Password);
+//     await Users.findOneAndUpdate(
+//       { Username: req.params.Username },
+//       {
+//         $set: {
+//           Username: req.body.Username,
+//           Password: hashedPassword,
+//           Email: req.body.Email,
+//           Birthday: req.body.Birthday,
+//         },
+//       },
+//       { new: true }
+//     )
+//       .then((updatedUser) => {
+//         res.json(updatedUser);
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         res.status(500).send("Error: " + err);
+//       });
+//   }
+// );
 
 // Get all movies
 app.get(
