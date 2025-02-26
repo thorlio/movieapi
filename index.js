@@ -242,9 +242,9 @@ app.post("/users/:Username/movies/:MovieID", async (req, res) => {
   const { Username, MovieID } = req.params;
 
   try {
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await Users.findOneAndUpdate(
       { Username },
-      { $addToSet: { FavoriteMovies: MovieID } },
+      { $addToSet: { FavoriteMovies: MovieID.toString() } }, // Add as a string
       { new: true }
     );
 
@@ -252,8 +252,8 @@ app.post("/users/:Username/movies/:MovieID", async (req, res) => {
 
     res.json(updatedUser);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error adding favorite movie");
+    console.error("Error adding favorite movie:", error);
+    res.status(500).send("Internal Server Error while adding favorite movie");
   }
 });
 
@@ -261,9 +261,9 @@ app.delete("/users/:Username/movies/:MovieID", async (req, res) => {
   const { Username, MovieID } = req.params;
 
   try {
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await Users.findOneAndUpdate(
       { Username },
-      { $pull: { FavoriteMovies: MovieID } },
+      { $pull: { FavoriteMovies: MovieID.toString() } },
       { new: true }
     );
 
@@ -271,8 +271,8 @@ app.delete("/users/:Username/movies/:MovieID", async (req, res) => {
 
     res.json(updatedUser);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error removing favorite movie");
+    console.error("Error removing favorite movie:", error);
+    res.status(500).send("Internal Server Error while removing favorite movie");
   }
 });
 
