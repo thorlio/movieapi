@@ -50,7 +50,7 @@ let auth = require("./auth.js")(app);
 require("./passport.js");
 
 app.get("/", (req, res) => {
-  res.status(200).send("Welcome to Flix and Chill App!");
+  res.status(200).send("Welcome to OhMyFlix App!");
 });
 
 const bcrypt = require("bcrypt");
